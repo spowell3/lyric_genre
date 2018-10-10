@@ -34,7 +34,7 @@ plt.show()
 
 lyrics_sub['lyrics'] = lyrics_sub['lyrics'].str.replace(pat="\n", repl=' ')
 print(lyrics_sub.head())
-
+# Get the term vectors for the lyrics
 test = lyrics_sub['lyrics'].head()
 print(list(test))
 punc = re.compile('[%s]' % re.escape(string.punctuation))
@@ -50,6 +50,17 @@ for d in list(test):
 	
 for vec in test_vec:
 	print(vec)
+# This does it for all the songs so it takes a while
+lyric_vec = []
+for song in list(lyrics_sub['lyrics']):
+	song = str(song).lower()
+	song = punc.sub('',song)
+	lyric_vec.append(nltk.word_tokenize(song))
+	
+print(lyric_vec[0])
+# lyrics_sub['lyric_vec'] = lyric_vec
+
+# print(lyrics_sub.head())
 	
 
 
