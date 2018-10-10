@@ -4,6 +4,8 @@ import numpy as np
 import gensim
 import nltk
 import matplotlib.pyplot as plt
+import re
+import string
 
 # Set working directory
 os.chdir('C:/Users/johnb/OneDrive/Documents/MSA/Fall 2/Text Mining/')
@@ -32,3 +34,23 @@ plt.show()
 
 lyrics_sub['lyrics'] = lyrics_sub['lyrics'].str.replace(pat="\n", repl=' ')
 print(lyrics_sub.head())
+
+test = lyrics_sub['lyrics'].head()
+print(list(test))
+punc = re.compile('[%s]' % re.escape(string.punctuation))
+test_vec = []
+for d in list(test):
+	d = d.lower()
+	d = punc.sub('',d)
+	try:
+		test_vec.append(nltk.word_tokenize(d))
+	except:
+		nltk.download('punkt')
+		test_vec.append(nltk.word_tokenize(d))
+	
+for vec in test_vec:
+	print(vec)
+	
+
+
+
