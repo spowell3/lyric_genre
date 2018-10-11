@@ -58,6 +58,15 @@ for song in list(lyrics_sub['lyrics']):
 	lyric_vec.append(nltk.word_tokenize(song))
 	
 print(lyric_vec[0])
+
+stop_words = nltk.corput.stopwords.words('english')
+
+for i in range(0,len(lyric_vec)):
+	term_list=[]
+	for term in term_vec[i]:
+		if term not in stop_words:
+			term_list.append(term)
+	term_vec[i] = term_list
 # lyrics_sub['lyric_vec'] = lyric_vec
 
 # print(lyrics_sub.head())
