@@ -1,3 +1,9 @@
+# -*- coding: utf-8 -*-
+"""
+Spyder Editor
+
+This is a temporary script file.
+"""
 import os
 import pandas as pd
 import numpy as np
@@ -85,10 +91,3 @@ for i in range(0, len(lyric_vec)):
 		lyric_vec[i][j] = porter.stem(lyric_vec[i][j])
 		
 print(lyric_vec[0])
-# lyrics_sub['lyric_vec'] = lyric_vec
-
-# print(lyrics_sub.head())
-	
-
-
-
