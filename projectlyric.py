@@ -63,10 +63,12 @@ stop_words = nltk.corput.stopwords.words('english')
 
 for i in range(0,len(lyric_vec)):
 	term_list=[]
-	for term in term_vec[i]:
+	for term in lyric_vec[i]:
 		if term not in stop_words:
 			term_list.append(term)
-	term_vec[i] = term_list
+	lyric_vec[i] = term_list
+	
+print(lyric_vec[0])
 # lyrics_sub['lyric_vec'] = lyric_vec
 
 # print(lyrics_sub.head())
