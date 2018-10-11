@@ -91,3 +91,20 @@ for i in range(0, len(lyric_vec)):
 		lyric_vec[i][j] = porter.stem(lyric_vec[i][j])
 		
 print(lyric_vec[0])
+
+dict = gensim.corpora.Dictionary(lyric_vec)
+
+corp = []
+for i in range(0, len(lyric_vec)):
+    corp.append(dict.doc2bow(lyric_vec[i]))
+    
+tfidf_model = gensim.models.TfidfModel(corp)
+tfidf = []
+for i in range(0, len(corp)):
+    tfidf.append(tfidf_model[corp[i]])
+    
+n = len(dict)
+index = gensim.similarities.SparseMatrixSimilarity(tfidf_model[corp], num_features=n)
+
+
+    
