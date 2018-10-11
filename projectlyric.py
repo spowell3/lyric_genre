@@ -55,11 +55,19 @@ lyric_vec = []
 for song in list(lyrics_sub['lyrics']):
 	song = str(song).lower()
 	song = punc.sub('',song)
-	lyric_vec.append(nltk.word_tokenize(song))
+	try:
+		lyric_vec.append(nltk.word_tokenize(song))
+	except:
+		nltk.download('punkt')
+		lyric_vec.append(nltk.word_tokenize(song))
 	
 print(lyric_vec[0])
 
-stop_words = nltk.corput.stopwords.words('english')
+try:
+	stop_words = nltk.corpus.stopwords.words('english')
+except:
+	nltk.download('stopwords')
+	stop_words = nltk.corpus.stopwords.words('english')
 
 for i in range(0,len(lyric_vec)):
 	term_list=[]
@@ -68,6 +76,14 @@ for i in range(0,len(lyric_vec)):
 			term_list.append(term)
 	lyric_vec[i] = term_list
 	
+print(lyric_vec[0])
+
+porter = nltk.stem.porter.PorterStemmer()
+
+for i in range(0, len(lyric_vec)):
+	for j in range(0, len(lyric_vec[i])):
+		lyric_vec[i][j] = porter.stem(lyric_vec[i][j])
+		
 print(lyric_vec[0])
 # lyrics_sub['lyric_vec'] = lyric_vec
 
