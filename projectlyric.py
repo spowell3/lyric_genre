@@ -92,6 +92,69 @@ for i in range(0, len(lyric_vec)):
 		
 print(lyric_vec[0])
 
+
+########################### Chelsey doing classification model ###################################################    
+from collections import Counter
+#from sklearn.naive_bayes import ComplementNB
+
+#making pairs of lyrics and genres
+lyrics_sub['clean_text'] = lyric_vec
+pairs=[]
+for i in range(0,len(lyrics_sub)):
+    pairs.append((lyrics_sub.iloc[i,6], lyrics_sub.iloc[i,4]))
+#lyrics are in the 6th column and genre is in the 4th column
+np.random.shuffle(pairs)
+
+#getting all the words to poplulate 2000 most frequenct for word_features
+
+flattened_lyric_vec = [val for sublist in lyric_vec for val in sublist]
+counts =  Counter(flattened_lyric_vec)
+print(counts)
+
+common_words = counts.most_common(2000)
+print(common_words)
+word_features = [i[0] for i in common_words]
+print(word_features)
+
+#function returns features of a song
+def lyrics_features(doc):
+    lyrics_words = set(doc)
+    features = {}
+    for word in word_features:
+        features['contains(%s)' %word] = (word in lyrics_words)
+    return features
+
+#testing function
+print(lyrics_features(pairs[0][0]))
+
+
+
+#Classifying with a SMALL set of pairs
+small_pairs = pairs[:1000]
+featuresets = [(lyrics_features(l),g) for (l,g) in small_pairs] 
+train_set, test_set = featuresets[500:], featuresets[:500]
+classifier = nltk.NaiveBayesClassifier.train(train_set)
+
+print(nltk.classify.accuracy(classifier, test_set))
+
+classifier.show_most_informative_features(5)
+
+#I RUN OUT OF MEMORY. :(
+#Training and Testing classifier for lyric classificatoin - BIG 
+featuresets = [(lyrics_features(l),g) for (l,g) in pairs] #THIS STEP IS WHERE I RUN OUT OF MEMORY!
+train_set, test_set = featuresets[154370:], featuresets[:154370]
+classifier = nltk.NaiveBayesClassifier.train(train_set)
+
+print(nltk.classify.accuracy(classifier.test_set))
+
+classifier.show_most_informative_features(5)
+    
+    
+############################################################################## 
+
+
+
+
 dict = gensim.corpora.Dictionary(lyric_vec)
 
 corp = []
