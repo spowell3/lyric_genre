@@ -29,6 +29,8 @@ print(np.sum(lyrics['genre'] == 'Other'))
 print(lyrics['genre'].value_counts())
 lyrics_sub = lyrics[lyrics['genre'] != 'Not Available']
 lyrics_sub = lyrics_sub[lyrics_sub['genre'] != 'Other']
+genres = lyrics_sub['genre'].unique()
+
 # Plot the frequency for the various genres
 lyrics_sub['genre'].value_counts().plot(kind='bar')
 plt.xlabel('Genre')
@@ -156,7 +158,7 @@ print(word_features)
 ############################################################################## 
 
 
-##### ALTERNATIVE ATTEMPT ######
+###### ALTERNATIVE ATTEMPT ######
 ## feature function alternative
 from collections import defaultdict
 def get_features(song):
@@ -178,21 +180,71 @@ print(nltk.classify.accuracy(classifier, test_set))
 
 classifier.show_most_informative_features(5)
 
-# Assign a split to train and test. Validation will take the remainder
-train_slice = round(len(pairs)*0.8)
-test_slice = round(len(pairs)-len(pairs)*0.2)
-train_set = apply_features(get_features, pairs[:train_slice]) #invisible in variable explorer...?
-test_set = apply_features(get_features, pairs[test_slice:])
-#validat_set = apply_features(get_features, pairs[train_slice:test_slice])
-print(train_set[0][0]) #OK consistent w/ above
+# Assign a split to train and test
+from sklearn.model_selection import train_test_split
+
+# TODO attempt stratified sampling
+
+np.random.seed(505) # I think this guarantees reproducible split for the function below.
+train_pairs, test_pairs = train_test_split(pairs, test_size=0.2)
+train_set = apply_features(get_features, train_pairs) #invisible in variable explorer...?
+test_set = apply_features(get_features, test_pairs)
+print(train_set[0][0])
+print(train_pairs[5])
 
 # Classifying on FULL alternative set
 classifier = nltk.NaiveBayesClassifier.train(train_set)
 
 print(nltk.classify.accuracy(classifier, test_set))
 
+#getting list of individual predictions and actual results for confusion matrix
+test_predictions=[]
+test_actual=[]
+for (featureset, genre) in test_set:
+    #this is redundant, but I couldn't figure out another way to do this
+    test_predictions.append(classifier.classify(dict(featureset)))
+    test_actual.append(genre)
+
 classifier.show_most_informative_features(5)
 
+# Plotting a confusion matrix
+from sklearn.metrics import confusion_matrix
+import seaborn as sns
+
+cm = nltk.ConfusionMatrix(test_predictions, test_actual) #not sure how to work with this object
+cm2= confusion_matrix(test_predictions,test_actual) #using sklearn's tools
+cm2norm= cm2.astype('float') / cm2.sum(axis=1)[:, np.newaxis] #normalizing to proportions
+cm2_df=pd.DataFrame(cm2,columns=genres,index=genres)
+
+fig, ax = plt.subplots(figsize=(8,8))
+sns.heatmap(cm2_df,annot=True, ax=ax)
+ax.set_title('Naive Bayes Confusion Matrix Heatmap')
+plt.xlabel("Predicted")
+plt.ylabel("Actual")
+plt.show()
+
+# sanity check of distributions
+
+ax=plt.axes()
+# sort=False important, otherwise it'll scramble genre order. Not ideal for comparison
+pd.Series(test_actual).value_counts(sort=False).plot(kind='bar')
+plt.xlabel('Genre')
+plt.ylabel('Count')
+plt.title('Frequency of Actual Genres')
+plt.show()
+
+ax=plt.axes()
+pd.Series(test_predictions).value_counts(sort=False).plot(kind='bar')
+plt.xlabel('Genre')
+plt.ylabel('Count')
+plt.title('Frequency of Predicted Genres')
+plt.show()
+
+
+
+# TODO Ensure valid link b/w predictions and original metadata (ie artist, song, yr)
+
+###################################
 
 
 # Topic modeling
