@@ -14,7 +14,8 @@ import re
 import string
 
 # Set working directory
-os.chdir('C:/Users/johnb/OneDrive/Documents/MSA/Fall 2/Text Mining/')
+# os.chdir('C:/Users/johnb/OneDrive/Documents/MSA/Fall 2/Text Mining/')
+os.chdir('C:/Users/Steven/Documents/MSA/Analytics Foundations/Text/lyrics')
 
 lyrics = pd.read_csv('lyrics.csv')
 # Examine the dataframe
@@ -102,12 +103,13 @@ lyrics_sub['clean_text'] = lyric_vec
 pairs=[]
 for i in range(0,len(lyrics_sub)):
     pairs.append((lyrics_sub.iloc[i,6], lyrics_sub.iloc[i,4]))
-#lyrics are in the 6th column and genre is in the 4th column
+#lyrics are in the 7th column and genre is in the 5th column
 np.random.shuffle(pairs)
+pairs[0]
 
 #getting all the words to poplulate 2000 most frequenct for word_features
-
 flattened_lyric_vec = [val for sublist in lyric_vec for val in sublist]
+flattened_lyric_vec[88:120]
 counts =  Counter(flattened_lyric_vec)
 print(counts)
 
@@ -116,44 +118,84 @@ print(common_words)
 word_features = [i[0] for i in common_words]
 print(word_features)
 
-#function returns features of a song
-def lyrics_features(doc):
-    lyrics_words = set(doc)
-    features = {}
-    for word in word_features:
-        features['contains(%s)' %word] = (word in lyrics_words)
+# NOTE: alternative attempt deviates here
+
+##function returns features of a song
+#def lyrics_features(doc):
+#    lyrics_words = set(doc)
+#    features = {}
+#    for word in word_features:
+#        features['contains(%s)' %word] = (word in lyrics_words)
+#    return features
+#
+##testing function
+#print(lyrics_features(pairs[0][0]))
+#
+##Defining featureset of SMALL set of pairs
+#small_pairs = pairs[:1000]
+#featuresets = [(lyrics_features(l),g) for (l,g) in small_pairs]
+# 
+## Classifying
+#train_set, test_set = featuresets[500:], featuresets[:500]
+#classifier = nltk.NaiveBayesClassifier.train(train_set)
+#
+#print(nltk.classify.accuracy(classifier, test_set))
+#
+#classifier.show_most_informative_features(5)
+#
+##I RUN OUT OF MEMORY. :(
+##Training and Testing classifier for lyric classificatoin - BIG 
+#featuresets = [(lyrics_features(l),g) for (l,g) in pairs] #THIS STEP IS WHERE I RUN OUT OF MEMORY!
+#train_set, test_set = featuresets[154370:], featuresets[:154370]
+#classifier = nltk.NaiveBayesClassifier.train(train_set)
+#
+#print(nltk.classify.accuracy(classifier.test_set))
+#
+#classifier.show_most_informative_features(5)
+#     
+############################################################################## 
+
+
+##### ALTERNATIVE ATTEMPT ######
+## feature function alternative
+from collections import defaultdict
+def get_features(song):
+    features = defaultdict(bool)
+    for word in song:
+        features[word] = True
     return features
+print(get_features(pairs[0][0]))
 
-#testing function
-print(lyrics_features(pairs[0][0]))
+# Classifying on SMALL alternative set
+from nltk.classify import apply_features
 
-
-
-#Classifying with a SMALL set of pairs
 small_pairs = pairs[:1000]
-featuresets = [(lyrics_features(l),g) for (l,g) in small_pairs] 
-train_set, test_set = featuresets[500:], featuresets[:500]
+train_set = apply_features(get_features, pairs[500:])
+test_set = apply_features(get_features, pairs[:500])
 classifier = nltk.NaiveBayesClassifier.train(train_set)
 
 print(nltk.classify.accuracy(classifier, test_set))
 
 classifier.show_most_informative_features(5)
 
-#I RUN OUT OF MEMORY. :(
-#Training and Testing classifier for lyric classificatoin - BIG 
-featuresets = [(lyrics_features(l),g) for (l,g) in pairs] #THIS STEP IS WHERE I RUN OUT OF MEMORY!
-train_set, test_set = featuresets[154370:], featuresets[:154370]
+# Assign a split to train and test. Validation will take the remainder
+train_slice = round(len(pairs)*0.8)
+test_slice = round(len(pairs)-len(pairs)*0.2)
+train_set = apply_features(get_features, pairs[:train_slice]) #invisible in variable explorer...?
+test_set = apply_features(get_features, pairs[test_slice:])
+#validat_set = apply_features(get_features, pairs[train_slice:test_slice])
+print(train_set[0][0]) #OK consistent w/ above
+
+# Classifying on FULL alternative set
 classifier = nltk.NaiveBayesClassifier.train(train_set)
 
-print(nltk.classify.accuracy(classifier.test_set))
+print(nltk.classify.accuracy(classifier, test_set))
 
 classifier.show_most_informative_features(5)
-    
-    
-############################################################################## 
 
 
 
+# Topic modeling
 
 dict = gensim.corpora.Dictionary(lyric_vec)
 
