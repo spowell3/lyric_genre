@@ -14,8 +14,8 @@ import re
 import string
 
 # Set working directory
-# os.chdir('C:/Users/johnb/OneDrive/Documents/MSA/Fall 2/Text Mining/')
-os.chdir('C:/Users/Steven/Documents/MSA/Analytics Foundations/Text/lyrics')
+os.chdir('C:/Users/johnb/OneDrive/Documents/MSA/Fall 2/Text Mining/')
+#os.chdir('C:/Users/Steven/Documents/MSA/Analytics Foundations/Text/lyrics')
 
 lyrics = pd.read_csv('lyrics.csv')
 # Examine the dataframe
@@ -25,10 +25,11 @@ print(lyrics['genre'].unique())
 
 print(np.sum(lyrics['genre'] == 'Not Available'))
 print(np.sum(lyrics['genre'] == 'Other'))
-
+print(np.sum(lyrics['genre'] == 'Rock')/len(lyrics['genre']))
 print(lyrics['genre'].value_counts())
 lyrics_sub = lyrics[lyrics['genre'] != 'Not Available']
 lyrics_sub = lyrics_sub[lyrics_sub['genre'] != 'Other']
+print(np.sum(lyrics_sub['genre'] == 'Rock')/len(lyrics_sub['genre']))
 genres = lyrics_sub['genre'].unique()
 
 # Plot the frequency for the various genres
